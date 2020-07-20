@@ -1,7 +1,6 @@
 package com.shubham.weather.ui;
 
 import android.app.ActivityOptions;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,21 +13,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.weatherchecker.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import dmax.dialog.SpotsDialog;
+
 public class Login extends AppCompatActivity {
-//    ProgressBar progressBar;
+private android.app.AlertDialog progressBar;
     FirebaseAuth fAuth;
 
     Button callSignUp, login_btn, forgotTextLink ;
@@ -51,6 +46,8 @@ public class Login extends AppCompatActivity {
         login_btn = findViewById(R.id.login_btn);
         forgotTextLink = findViewById(R.id.forgot_pass);
 
+        progressBar = new SpotsDialog(this, R.style.Custom);
+
         callSignUp.setOnClickListener(view -> {
             Intent intent = new Intent(Login.this, SignUp.class);
             Pair[] pairs = new Pair[7];
@@ -64,6 +61,7 @@ public class Login extends AppCompatActivity {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(Login.this, pairs);
                 startActivity(intent, options.toBundle());
+                finish();
             }
         });
 
@@ -74,84 +72,60 @@ public class Login extends AppCompatActivity {
             finish();
         }
 
-        login_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        login_btn.setOnClickListener(v -> {
 
-                String email = mEmail.getEditText().getText().toString().trim();
-                String password = mPassword.getEditText().getText().toString().trim();
+            String email = mEmail.getEditText().getText().toString().trim();
+            String password = mPassword.getEditText().getText().toString().trim();
 
-                if(TextUtils.isEmpty(email)){
-                    mEmail.setError("Email is Required.");
-                    return;
-                }
-
-                if(TextUtils.isEmpty(password)){
-                    mPassword.setError("Password is Required.");
-                    return;
-                }
-
-                if(password.length() < 6){
-                    mPassword.setError("Password Must be >= 6 Characters");
-                    return;
-                }
-
-
-                fAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            Toast.makeText(Login.this, "Logged in Successfully", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                        }else {
-                            Toast.makeText(Login.this, "Error ! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                           // progressBar.setVisibility(View.GONE);
-                        }
-
-                    }
-                });
-
+            if(TextUtils.isEmpty(email)){
+                mEmail.setError("Email is Required.");
+                return;
             }
+
+            if(TextUtils.isEmpty(password)){
+                mPassword.setError("Password is Required.");
+                return;
+            }
+
+            if(password.length() < 6){
+                mPassword.setError("Password Must be >= 6 Characters");
+                return;
+            }
+            progressBar.show();
+
+
+            fAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
+                if(task.isSuccessful()){
+                    Toast.makeText(Login.this, "Logged in Successfully", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                }else {
+                    Toast.makeText(Login.this, "Error ! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    progressBar.dismiss();
+                }
+
+            });
+
         });
 
-        forgotTextLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        forgotTextLink.setOnClickListener(v -> {
 
-                final EditText resetMail = new EditText(v.getContext());
-                final AlertDialog.Builder passwordResetDialog = new AlertDialog.Builder(v.getContext());
-                passwordResetDialog.setTitle("Reset Password ?");
-                passwordResetDialog.setMessage("Enter Your Email To Received Reset Link.");
-                passwordResetDialog.setView(resetMail);
+            final EditText resetMail = new EditText(v.getContext());
+            final AlertDialog.Builder passwordResetDialog = new AlertDialog.Builder(v.getContext());
+            passwordResetDialog.setTitle("Reset Password ?");
+            passwordResetDialog.setMessage("Enter Your Email To Received Reset Link.");
+            passwordResetDialog.setView(resetMail);
 
-                passwordResetDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String mail = resetMail.getText().toString();
-                        fAuth.sendPasswordResetEmail(mail).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(Login.this, "Reset Link Sent To Your Email.", Toast.LENGTH_SHORT).show();
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(Login.this, "Error ! Reset Link is Not Sent" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
+            passwordResetDialog.setPositiveButton("Yes", (dialog, which) -> {
+                String mail = resetMail.getText().toString();
+                fAuth.sendPasswordResetEmail(mail).addOnSuccessListener(aVoid -> Toast.makeText(Login.this, "Reset Link Sent To Your Email.", Toast.LENGTH_SHORT).show()).addOnFailureListener(e -> Toast.makeText(Login.this, "Error ! Reset Link is Not Sent" + e.getMessage(), Toast.LENGTH_SHORT).show());
 
-                    }
-                });
+            });
 
-                passwordResetDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
+            passwordResetDialog.setNegativeButton("No", (dialog, which) -> {
+            });
 
-                passwordResetDialog.create().show();
+            passwordResetDialog.create().show();
 
-            }
         });
 
 

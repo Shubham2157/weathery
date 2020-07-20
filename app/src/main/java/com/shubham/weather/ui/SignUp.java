@@ -1,10 +1,13 @@
 package com.shubham.weather.ui;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,13 +24,19 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+import dmax.dialog.SpotsDialog;
+
 public class SignUp extends AppCompatActivity {
     public static final String TAG = "TAG";
     TextInputLayout mName,  mEmail, mPhone, mPassword;
     Button mRegisterBtn, mLoginBtn;
+    ImageView image;
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
     String userID;
+    TextView logoText, sloganText;
+
+    private AlertDialog progressBar;
 
 
     @Override
@@ -36,7 +45,9 @@ public class SignUp extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
 
         mName = findViewById(R.id.reg_name);
-        //regUsername = findViewById(R.id.reg_username);
+        image = findViewById(R.id.logo_image);
+        logoText = findViewById(R.id.logo_name);
+        sloganText = findViewById(R.id.slogan_name);
         mEmail = findViewById(R.id.reg_email);
         mPhone = findViewById(R.id.reg_phoneNo);
         mPassword = findViewById(R.id.reg_password);
@@ -44,13 +55,19 @@ public class SignUp extends AppCompatActivity {
         mLoginBtn = findViewById(R.id.reg_login_btn);
         fAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
-        //progressBar = findViewById(R.id.progressBar);
+
+
+        progressBar = new SpotsDialog(this, R.style.Custom);
+
 
         if(fAuth.getCurrentUser() != null){
             startActivity(new Intent(getApplicationContext(),MainActivity.class));
             finish();
         }
 
+        mLoginBtn.setOnClickListener(view -> {
+
+        });
 
         mRegisterBtn.setOnClickListener(v -> {
             final String email = mEmail.getEditText().getText().toString().trim();
@@ -73,14 +90,12 @@ public class SignUp extends AppCompatActivity {
                 return;
             }
 
-            //progressBar.setVisibility(View.VISIBLE);
+           progressBar.show();
 
-            // register the user in firebase
 
             fAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
                 if(task.isSuccessful()){
 
-                    // send verification link
 
                     FirebaseUser fuser = fAuth.getCurrentUser();
                     fuser.sendEmailVerification().addOnSuccessListener(aVoid -> Toast.makeText(SignUp.this, "Verification Email Has been Sent.", Toast.LENGTH_SHORT).show()).addOnFailureListener(new OnFailureListener() {
@@ -107,7 +122,7 @@ public class SignUp extends AppCompatActivity {
 
                 }else {
                     Toast.makeText(SignUp.this, "Error ! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                  //  progressBar.setVisibility(View.GONE);
+                    progressBar.dismiss();
                 }
             });
         });

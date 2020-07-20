@@ -29,7 +29,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign In to continue"
-        android:textSize="18sp"/>
+        android:textSize="18sp"
+        android:transitionName="logo_desc"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -42,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/username"
-            android:hint="Username"
+            android:hint="Email"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -81,8 +82,8 @@
             android:layout_height="wrap_content"
             android:text="GO"
             android:background="#000"
-            android:onClick="loginUser"
             android:textColor="#fff"
+            android:transitionName="button_tran"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"/>
 
