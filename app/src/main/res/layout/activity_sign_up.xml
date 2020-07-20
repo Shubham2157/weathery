@@ -106,10 +106,11 @@
         android:id="@+id/reg_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="GO"
         android:background="#000"
+        android:text="GO"
         android:textColor="#fff"
-        android:transitionName="button_tran"/>
+        android:onClick="registerUser"
+        android:transitionName="button_tran" />
     <Button
         android:id="@+id/reg_login_btn"
         android:layout_width="match_parent"
