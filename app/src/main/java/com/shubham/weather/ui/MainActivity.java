@@ -35,6 +35,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.widget.NestedScrollView;
 
 import com.example.weatherchecker.R;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -145,6 +146,8 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Weather Checker");
         }
@@ -218,6 +221,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+            if (item.getItemId() == R.id.logout){
+                logout();
+            }
+
             return false;
         });
 
@@ -541,4 +548,12 @@ public class MainActivity extends AppCompatActivity {
             return getResources().getDrawable(iconId);
         }
     }
+
+
+    public void logout() {
+        FirebaseAuth.getInstance().signOut();//logout
+        startActivity(new Intent(getApplicationContext(),Login.class));
+        finish();
+    }
+
 }
